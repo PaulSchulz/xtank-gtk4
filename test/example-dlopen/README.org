@@ -1,0 +1,14 @@
+#+TITLE: Example for using Dynamic Linking in C
+
+* Introduction
+These files come from an example on GitHub by 'tailriver'
+
+Ref: https://gist.github.com/tailriver/30bf0c943325330b7b6a
+
+* Build
+#+begin_src 
+make
+#+end_src
+
+* Running
+Use *make run* to run all the examples.

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <object class="GtkApplicationWindow" id="win">
+    <property name="title">xtank</property>
+    <property name="default-width">1024</property>
+    <property name="default-height">768</property>
+    <!--
+    <property name="vexpand">true</property>
+    <property name="vexpand-set">true</property>
+    <property name="hexpand">true</property>
+    <property name="hexpand-set">true</property>
+    -->
+    <!--
+    <property name="fullscreened">true</property>
+    -->
+    <child>
+      <object class="GtkBox" id="boxv">
+        <property name="orientation">GTK_ORIENTATION_VERTICAL</property>
+        <child>
+          <object class="GtkImage" id="image">
+            <property name="vexpand">true</property>
+            <property name="hexpand">true</property>
+            <!--
+            <property name="vexpand-set">true</property>
+            <property name="hexpand-set">true</property>
+            -->
+          </object>
+        </child>
+        <child>
+          <object class="GtkButton" id="btns">
+            <property name="label">Start</property>
+          </object>
+        </child>
+      </object>
+    </child>
+  </object>
+</interface>
