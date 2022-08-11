@@ -30,7 +30,7 @@ CC = gcc
 all: ${PROG}
 
 ##############################################################################
-${PROG}: ${OBJS}
+${PROG}: ${OBJS} xtank.gresources.o
 	gcc  $^ ${LOADLIBES} ${LDLIBS} -o $@
 
 #xtank: xtank.o xtank.gresources.o
