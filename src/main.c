@@ -152,28 +152,28 @@ app_activate (GApplication *app, gpointer user_data) {
     win = GTK_WIDGET(gtk_builder_get_object(build, "win"));
 
     // Main: add drawable Area
-     gtk_drawing_area_set_draw_func(GTK_DRAWING_AREA(area), draw_function, NULL, NULL);
-     gtk_window_set_child(GTK_WINDOW(win), area);
+    gtk_drawing_area_set_draw_func(GTK_DRAWING_AREA(area), draw_function, NULL, NULL);
+    gtk_window_set_child(GTK_WINDOW(win), area);
 
-     gtk_window_set_application(GTK_WINDOW(win), GTK_APPLICATION(app));
+    gtk_window_set_application(GTK_WINDOW(win), GTK_APPLICATION(app));
 
-     // Initialisation
-     // data = data_init();
+    // Initialisation
+    // data = data_init();
 
-     // Statistics - required prior to calculating rate stats
-     // start_time initially setup elseware
-     if (clock_gettime(CLOCK_REALTIME,&tms)) {
-         printf("*** ERROR Unable to get CLOCK_REALTIME\n");
-     }
-     /* seconds, multiplied with 1 million */
-     end_time = tms.tv_sec * 1000000;
-     /* Add full microseconds */
-     end_time += tms.tv_nsec/1000;
-     /* round up if necessary */
-     if (tms.tv_nsec % 1000 >= 500) {
-         ++end_time;
-     }
-     start_time = end_time;
+    // Statistics - required prior to calculating rate stats
+    // start_time initially setup elseware
+    if (clock_gettime(CLOCK_REALTIME,&tms)) {
+        printf("*** ERROR Unable to get CLOCK_REALTIME\n");
+    }
+    /* seconds, multiplied with 1 million */
+    end_time = tms.tv_sec * 1000000;
+    /* Add full microseconds */
+    end_time += tms.tv_nsec/1000;
+    /* round up if necessary */
+    if (tms.tv_nsec % 1000 >= 500) {
+        ++end_time;
+    }
+    start_time = end_time;
     begin_time = end_time;
 
     end_steps = 0;

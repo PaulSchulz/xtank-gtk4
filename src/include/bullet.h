@@ -94,79 +94,79 @@
 #define find_rot(angle,numv) ((int)(((angle) + PI/(numv) + PI*2)*((numv) / (PI*2))))%(numv)
 
 
-  typedef struct {
-	  Vehicle *owner;	/* pointer to vehicle that shot bullet */
-	  int thrower;		/* color of the guy who thre the frisbee */
-	  Loc *loc;		/* pointer to location info */
-	  Loc *old_loc;		/* pointer to previous location info */
-	  Loc loc1;		/* 1st area for location info */
-	  Loc loc2;		/* 2nd area for location info */
-	  FLOAT xspeed;		/* speed of travel in x direction */
-	  FLOAT yspeed;		/* speed of travel in y direction */
-	  WeaponType type;
-	  int life;		/* number of frames left before bullet dies */
-	  Boolean hurt_owner;	/* whether bullet can hurt owner or not */
-	  lCoord target;	/* last target update for a smart weapon */
-	  int state;		/* what a smart bullet is up to */
-	  int mode;
+typedef struct {
+    Vehicle *owner;	/* pointer to vehicle that shot bullet */
+    int thrower;		/* color of the guy who thre the frisbee */
+    Loc *loc;		/* pointer to location info */
+    Loc *old_loc;		/* pointer to previous location info */
+    Loc loc1;		/* 1st area for location info */
+    Loc loc2;		/* 2nd area for location info */
+    FLOAT xspeed;		/* speed of travel in x direction */
+    FLOAT yspeed;		/* speed of travel in y direction */
+    WeaponType type;
+    int life;		/* number of frames left before bullet dies */
+    Boolean hurt_owner;	/* whether bullet can hurt owner or not */
+    lCoord target;	/* last target update for a smart weapon */
+    int state;		/* what a smart bullet is up to */
+    int mode;
 
 	/* Look out! Something wicked this way comes. */
 	/* HAK and MEL mods 3/24/93 */
 
-	  int rot;			/* which bitmap to use */
-	  int old_rot;			/* so it knows which view to undraw */
-	  Loc old_old_loc;		/* used for lasers */
-	  long stuff;			/* used for anything the bullet wants... for its eyes only */
+    int rot;			/* which bitmap to use */
+    int old_rot;			/* so it knows which view to undraw */
+    Loc old_old_loc;		/* used for lasers */
+    long stuff;			/* used for anything the bullet wants... for its eyes only */
 
-          int safety;			/* Number of frames before a bullet becomes active */
-	  int num_views;		/* Number of bitmaps the bullet has */
+    int safety;			/* Number of frames before a bullet becomes active */
+    int num_views;		/* Number of bitmaps the bullet has */
 
-          unsigned long other_flgs;	/* All sorts of flag type things (Hints for the menus etc..) */
-          unsigned long creat_flgs;	/* Used for bullet creation */
-	  unsigned long disp_flgs;	/* Type of display code (In case of special animations etc...) */
-	  unsigned long move_flgs;	/* Movement type (normal, mine, anti-rad etc... ) */
-	  unsigned long hit_flgs;	/* Damage type (normal, high, low, blast, area etc... ) */
+    unsigned long other_flgs;	/* All sorts of flag type things (Hints for the menus etc..) */
+    unsigned long creat_flgs;	/* Used for bullet creation */
+    unsigned long disp_flgs;	/* Type of display code (In case of special animations etc...) */
+    unsigned long move_flgs;	/* Movement type (normal, mine, anti-rad etc... ) */
+    unsigned long hit_flgs;	/* Damage type (normal, high, low, blast, area etc... ) */
 
 	/* Pointer to special creation code */
-	  void (*creat_func)(Weapon *v, Loc *bloc, Angle angle);
+    void (*creat_func)(Weapon *v, Loc *bloc, Angle angle);
 
-	  void (*disp_func)();		/* Pointer to special display code */
+    void (*disp_func)();		/* Pointer to special display code */
 
-	  void (*upd_func)(void *b);	/* Pointer to special update code */
+    void (*upd_func)(void *b);	/* Pointer to special update code */
 
 	/* Pointer to special damage code */
-	  void (*hit_func)(int whatHit, void *b, int dx, int dy,
-				void *parm1, void *parm2, void *parm3);
+    void (*hit_func)(int whatHit, void *b, int dx, int dy,
+                     void *parm1, void *parm2, void *parm3);
 
 	/* End-o-big mods */
 
   }
 Bullet;
 
-  typedef struct {
-	  int number;			/* number of bullets */
-	  Bullet *list[MAX_BULLETS];	/* array of pointers to bullets */
-	  Bullet array[MAX_BULLETS];	/* array of bullets */
-  }
+typedef struct {
+    int number;			/* number of bullets */
+    Bullet *list[MAX_BULLETS];	/* array of pointers to bullets */
+    Bullet array[MAX_BULLETS];	/* array of bullets */
+}
 Bset;
 
-  typedef struct {
-	  int x, y, z;			/* coords */
-	  int screen_x[MAX_TERMINALS];	/* x coord on screen */
-	  int screen_y[MAX_TERMINALS];	/* y coord on screen */
-	  int old_screen_x[MAX_TERMINALS];	/* previous x coord on screen */
-	  int old_screen_y[MAX_TERMINALS];	/* previous y coord on screen */
-	  int life;			/* # frames before explosion dies */
-	  Object *obj;			/* pointer to object for the explosion */
-	  int color;
-  }
+typedef struct {
+    int x, y, z;			/* coords */
+    int screen_x[MAX_TERMINALS];	/* x coord on screen */
+    int screen_y[MAX_TERMINALS];	/* y coord on screen */
+    int old_screen_x[MAX_TERMINALS];	/* previous x coord on screen */
+    int old_screen_y[MAX_TERMINALS];	/* previous y coord on screen */
+    int life;			/* # frames before explosion dies */
+    Object *obj;			/* pointer to object for the explosion */
+    int color;
+}
 Exp;
 
-  typedef struct {
-	  int number;			/* number of explosions */
-	  Exp *list[MAX_EXPS];		/* array of pointers to explosions */
-	  Exp array[MAX_EXPS];		/* array of explosions */
-  }
+typedef struct {
+    int number;			/* number of explosions */
+    Exp *list[MAX_EXPS];		/* array of pointers to explosions */
+    Exp array[MAX_EXPS];		/* array of explosions */
+}
 Eset;
 
 

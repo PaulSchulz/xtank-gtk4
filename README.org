@@ -16,6 +16,16 @@ The way that progress can be made is to target a single platform, hopefully in a
 clean way, that can be then ported in a straight forward manner to other
 platforms if required.
 
+* Building
+
+#+begin_src shell
+  cd src
+  make
+#+end_src
+
+* Progress
+Not much at this stage.
+
 * Development
 
 ** Research
@@ -30,14 +40,40 @@ various parts of the program.
 - /example-dlopen/ :: A *gmodule* example. GModule 2.0 is the Portable GLib API for
   dynamically loading modules. 
 
-* Building
+** Structure Notes
 
-#+begin_src shell
-  cd src
-  make
+Notes:
+- (CLFkr) ConfigRunning, command_options :: Structure used to contain
+  configuration. Initially stored in *command_options* in main.c, with settings
+  loaded from command line options. Defined in *clfkr.h*
+
+#+begin_src 
+	Boolean AutoExit;	 // Exit immediately after running
+	Boolean AutoStart;	 // Skip the main menu and begin
+				         // execution automatically?
+	Boolean UseSetting;	 // Use a settings file specified
+				         // on the command line?
+	Boolean PrintScores; // Print scores to standard out after
+				         // running a game?
+	char *Settings;		 // File from which to load settings.
+	Boolean NoDelay;	 // Skip all pauses during gameplay?
+	Boolean NoIO;		 // Skip all screen I/O?
 #+end_src
 
-* Progress
-Not much at this stage.
+- (BSet) bset :: Bullet Set - structure containing data of current bullets in an
+  array, and an array/list of pointers to these bullets. *MAX_BULLETS* defined in
+  *tanklimits.h.*
+  
+- (Eset) eset :: Explosion Set - similar structure to handle bullets. *MAX_EXPS*
+  defined in *tanklimits.h*.
 
-* Structure
+- Vehicle Arrays :: *actual_vehicles*, **live_vehicles*, **dead_vehicles*, num_veh,
+  num_veh_alive, num_veh_dead. The arrays live_vehicles, dead_vehicles are
+  pointers into the *actual_vehicles*. Permanently 'dead' vehicles leave holes in
+  *actual_vehicles*.
+  
+Defines(includes):
+- xtank.h :: Contains a bunch of useful defines. (Includes screen.h, vdesc.h,
+  xtanklib.h)
+
+  What are TEST_TURRENTS?

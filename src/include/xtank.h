@@ -24,6 +24,8 @@
  * SUCH DAMAGE.
  */
 
+// TODO: Remove #if defineds / simplify
+
 #ifndef _XTANK_H_
 #define _XTANK_H_
 
