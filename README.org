@@ -18,13 +18,18 @@ platforms if required.
 
 * Development
 
-There are some test programs in *test*, which are being used to implement
+** Research
+Programs in /research/ are used to implement, test and evaluate 
+various parts of the program.
 
-- xtank-test :: Compile and load a separate program (using *dlopen*), used for
+- /xtank-dlopen/ :: Compile and load a separate program (using *dlopen*), used for
   implementing additional modules. (eg. robot programs, HUD improvements)
 
-- example-dlopen :: A *dlopen* example.
-  
+- /example-dlopen/ :: A *dlopen* example.
+
+- /example-dlopen/ :: A *gmodule* example. GModule 2.0 is the Portable GLib API for
+  dynamically loading modules. 
+
 * Building
 
 #+begin_src shell
@@ -33,5 +38,6 @@ There are some test programs in *test*, which are being used to implement
 #+end_src
 
 * Progress
-Not much.
+Not much at this stage.
 
+* Structure
