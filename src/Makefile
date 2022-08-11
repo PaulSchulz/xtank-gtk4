@@ -15,7 +15,6 @@ CFLAGS+= CFLAGS0+= -DDYNALOAD -DMULTI_SYNC -DTHREAD_SWAPCONTEXT
 CFLAGS+= -DXTANK_DIR="\"${CURDIR}/..\""
 
 SRCS=  main.c \
-       escher.c \
 	   version.c
 
 OBJS:=	$(patsubst %.c,%.o,$(SRCS))

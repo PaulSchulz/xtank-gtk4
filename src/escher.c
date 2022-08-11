@@ -28,14 +28,12 @@
 ** escher.c version started Thu d.07.12.1989
 */
 
-// #include "sysdep.h"
-// #include "graphics.h"
-// #include "bullet.h"
-// #include "vehicle.h"
-// #include "terminal.h"
-// #include "proto.h"
-
-#include <gtk/gtk.h>
+#include "sysdep.h"
+#include "graphics.h"
+#include "bullet.h"
+#include "vehicle.h"
+#include "terminal.h"
+#include "proto.h"
 
 /*
  * corners (corner one is near the visual origin)
@@ -58,17 +56,15 @@ int ey[4][4] =
 	{0, 0, 1, 2}};
 
 void
-menu_frame(cairo_t *cr, int x, int y, int w, int h, int func, int color, int frame)
+menu_frame(int win, int x, int y, int w, int h, int func, int color, int frame)
 {
 	int c;						/* corner */
 	int d;						/* delta inside of frame */
 	int px[4], py[4];
 
-	// draw_rect(win, x, y, w, h, func, color);
-    // TODO Only draws in white at the moment, as GDK uses a different color model.
-    cairo_rectangle (cr, x, y, w, h);
+	draw_rect(win, x, y, w, h, func, color);
 
-    if (frame < 4)
+	if (frame < 4)
 		return;
 
 	d = frame >> 1;
@@ -89,37 +85,25 @@ menu_frame(cairo_t *cr, int x, int y, int w, int h, int func, int color, int fra
 		n = (c == 3 ? 0 : c + 1);
 
 		/* 2c to 3c self-connect */
-		//draw_line(win,
-		//		  px[c] + (d * ex[c][2]), py[c] + (d * ey[c][2]),
-		//		  px[c] + (d * ex[c][3]), py[c] + (d * ey[c][3]),
-		//		  func, color);
-        cairo_move_to(cr, px[c] + (d * ex[c][2]), py[c] + (d * ey[c][2]));
-        cairo_line_to(cr, px[c] + (d * ex[c][3]), py[c] + (d * ey[c][3]));
-
-        /* 1c to 0n */
-		//draw_line(win,
-		//		  px[c] + (d * ex[c][1]), py[c] + (d * ey[c][1]),
-		//		  px[n] + (d * ex[n][0]), py[n] + (d * ey[n][0]),
-		//		  func, color);
-        cairo_move_to(cr, px[c] + (d * ex[c][1]), py[c] + (d * ey[c][1]));
-        cairo_line_to(cr, px[n] + (d * ex[n][0]), py[n] + (d * ey[n][0]));
-
-        /* 2c to 1n */
-		//draw_line(win,
-		//		  px[c] + (d * ex[c][2]), py[c] + (d * ey[c][2]),
-		//		  px[n] + (d * ex[n][1]), py[n] + (d * ey[n][1]),
-		//		  func, color);
-        cairo_move_to(cr, px[c] + (d * ex[c][2]), py[c] + (d * ey[c][2]));
-        cairo_line_to(cr, px[n] + (d * ex[n][1]), py[n] + (d * ey[n][1]));
-
-            /* 3c to 2n */
-            //draw_line(win,
-            //		  px[c] + (d * ex[c][3]), py[c] + (d * ey[c][3]),
-            //		  px[n] + (d * ex[n][2]), py[n] + (d * ey[n][2]),
-            //		  func, color);
-        cairo_move_to(cr, px[c] + (d * ex[c][3]), py[c] + (d * ey[c][3]));
-        cairo_line_to(cr, px[n] + (d * ex[n][2]), py[n] + (d * ey[n][2]));
-
-    }
+		draw_line(win,
+				  px[c] + (d * ex[c][2]), py[c] + (d * ey[c][2]),
+				  px[c] + (d * ex[c][3]), py[c] + (d * ey[c][3]),
+				  func, color);
+		/* 1c to 0n */
+		draw_line(win,
+				  px[c] + (d * ex[c][1]), py[c] + (d * ey[c][1]),
+				  px[n] + (d * ex[n][0]), py[n] + (d * ey[n][0]),
+				  func, color);
+		/* 2c to 1n */
+		draw_line(win,
+				  px[c] + (d * ex[c][2]), py[c] + (d * ey[c][2]),
+				  px[n] + (d * ex[n][1]), py[n] + (d * ey[n][1]),
+				  func, color);
+		/* 3c to 2n */
+		draw_line(win,
+				  px[c] + (d * ex[c][3]), py[c] + (d * ey[c][3]),
+				  px[n] + (d * ex[n][2]), py[n] + (d * ey[n][2]),
+				  func, color);
+	}
 	return;
 }
