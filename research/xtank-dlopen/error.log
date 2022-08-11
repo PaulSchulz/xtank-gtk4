@@ -1,0 +1,7 @@
+minimal.c: In function ‘minimal_main’:
+minimal.c:22:9: warning: implicit declaration of function ‘sync’ [-Wimplicit-function-declaration]
+   22 |         sync();
+      |         ^~~~
+minimal.c:23:9: warning: implicit declaration of function ‘sleep’ [-Wimplicit-function-declaration]
+   23 |         sleep(1);
+      |         ^~~~~
