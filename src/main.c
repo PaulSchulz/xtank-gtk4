@@ -250,6 +250,7 @@ main (int argc, char **argv) {
 
     InitConfigStruct(&command_options);
 
+    // TODO: Convert command-line parsing to use GOption
     if (argc > 1) {
         int ctr;
 

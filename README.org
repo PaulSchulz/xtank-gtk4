@@ -42,22 +42,22 @@ various parts of the program.
 
 ** Structure Notes
 
-Notes:
+*** Notes
 - (CLFkr) ConfigRunning, command_options :: Structure used to contain
   configuration. Initially stored in *command_options* in main.c, with settings
   loaded from command line options. Defined in *clfkr.h*
 
-#+begin_src 
-	Boolean AutoExit;	 // Exit immediately after running
-	Boolean AutoStart;	 // Skip the main menu and begin
-				         // execution automatically?
-	Boolean UseSetting;	 // Use a settings file specified
-				         // on the command line?
-	Boolean PrintScores; // Print scores to standard out after
-				         // running a game?
-	char *Settings;		 // File from which to load settings.
-	Boolean NoDelay;	 // Skip all pauses during gameplay?
-	Boolean NoIO;		 // Skip all screen I/O?
+#+begin_src C 
+  Boolean AutoExit;	 // Exit immediately after running
+  Boolean AutoStart;	 // Skip the main menu and begin
+                       // execution automatically?
+  Boolean UseSetting;	 // Use a settings file specified
+                       // on the command line?
+  Boolean PrintScores; // Print scores to standard out after
+                       // running a game?
+  char *Settings;		 // File from which to load settings.
+  Boolean NoDelay;	 // Skip all pauses during gameplay?
+  Boolean NoIO;		 // Skip all screen I/O?
 #+end_src
 
 - (BSet) bset :: Bullet Set - structure containing data of current bullets in an
@@ -67,13 +67,34 @@ Notes:
 - (Eset) eset :: Explosion Set - similar structure to handle bullets. *MAX_EXPS*
   defined in *tanklimits.h*.
 
+- (Maze) maze :: Structure which stores vehicle starting location (*Coord*), by
+  team. Defined in maze.h.
+
 - Vehicle Arrays :: *actual_vehicles*, **live_vehicles*, **dead_vehicles*, num_veh,
   num_veh_alive, num_veh_dead. The arrays live_vehicles, dead_vehicles are
   pointers into the *actual_vehicles*. Permanently 'dead' vehicles leave holes in
   *actual_vehicles*.
   
-Defines(includes):
+*** Defines(includes)
 - xtank.h :: Contains a bunch of useful defines. (Includes screen.h, vdesc.h,
   xtanklib.h)
 
   What are TEST_TURRENTS?
+
+- proto.h :: Function prototypes. In the original code this header file
+  contained all of the function prototypes for files except for *lowlib*, *highlib*
+  (in lowlib).
+
+  Uses a macro *P_* to remove additional parenthesis in the declarations. Why?
+
+  #+begin_src C
+#if 1 || defined(__STDC__) || defined(__cplusplus)
+#define P_(s) s
+#else
+#define P_(s) ()
+#endif
+  #+end_src
+
+- maze.h :: Data structures for storing descriptive maze information. Requires
+  'teams.h', 'tanklimits.h' to be defined first as it uses *MAX_TEAMS*,
+  *MAX_VEHICLES*.

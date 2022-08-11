@@ -36,6 +36,8 @@
 #include "graphics.h"
 #include "thread.h"
 
+// TOOD: Is the P_ macro still required?
+
 #if 1 || defined(__STDC__) || defined(__cplusplus)
 #define P_(s) s
 #else
