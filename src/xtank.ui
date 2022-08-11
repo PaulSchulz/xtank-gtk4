@@ -3,7 +3,7 @@
   <object class="GtkApplicationWindow" id="win">
     <property name="title">xtank</property>
     <property name="default-width">1024</property>
-    <property name="default-height">768</property>
+    <property name="default-height">864</property>
     <!--
     <property name="vexpand">true</property>
     <property name="vexpand-set">true</property>
