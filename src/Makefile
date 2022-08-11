@@ -2,7 +2,7 @@
 
 PROG=  xtank-gtk4
 
-CFLAGS= -I${.CURDIR} -I${.CURDIR}/include \
+CFLAGS= -I${CURDIR} -I${CURDIR}/include \
 	-O0 -g
 
 CFLAGS+= -DX11 -DUNIX -DS1024x864 -DKEYPAD_DETECT -DSTINGY_REDRAW \
@@ -12,7 +12,7 @@ CFLAGS+= -DX11 -DUNIX -DS1024x864 -DKEYPAD_DETECT -DSTINGY_REDRAW \
 
 CFLAGS+= CFLAGS0+= -DDYNALOAD -DMULTI_SYNC -DTHREAD_SWAPCONTEXT
 
-CFLAGS+= -DXTANK_DIR="\"${.CURDIR}/..\""
+CFLAGS+= -DXTANK_DIR="\"${CURDIR}/..\""
 
 SRCS=  main.c \
        escher.c \
@@ -20,7 +20,11 @@ SRCS=  main.c \
 
 OBJS:=	$(patsubst %.c,%.o,$(SRCS))
 
-CFLAGS= `pkg-config --cflags gtk4`
+CFLAGS0= -Iinclude -DUNIX -DX11
+
+DEFINES= -DALLDEFINES="\"${CFLAGS0}\""
+
+CFLAGS= `pkg-config --cflags gtk4` ${CFLAGS0} ${DEFINES}
 LDLIBS= -lm  `pkg-config --libs gtk4`
 CC = gcc
 
@@ -53,4 +57,4 @@ clean:
 	-rm *.o *.gresources.c
 
 dist-clean:
-	-rm xtank
+	-rm ${PROG}

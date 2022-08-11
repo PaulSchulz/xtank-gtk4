@@ -39,8 +39,8 @@ typedef enum {
 	True = 1
 } Boolean;
 
-#define FALSE ((int) False)		/* lint likes these better :-) */
-#define TRUE ((int) True)
+// #define FALSE ((int) False)		/* lint likes these better :-) */
+// #define TRUE ((int) True)
 typedef unsigned char Byte;
 typedef unsigned int Flag;		/* a set of bits */
 typedef FLOAT Angle;
