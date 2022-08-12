@@ -1,4 +1,9 @@
 #+TITLE:Development Notes
+* Introduction :TOC:
+- [[#progress][Progress]]
+- [[#development][Development]]
+  - [[#research][Research]]
+  - [[#structure-notes][Structure Notes]]
 
 * Progress
 Not much at this stage.
@@ -145,6 +150,7 @@ Game Grid - MAX_GRIDS x MAX_VEHICLES
 *** Game Loop
 - sub_interface_play() :: Choose the type of game to start. Standard, player,
   robots or customize.
+
 - standard_combatants() ::
 - player_combatants() ::
 - robot_combatants() ::
