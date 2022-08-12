@@ -218,6 +218,7 @@ main (int argc, char **argv) {
 	bset = &actual_bset;
 	eset = &actual_eset;
 
+    // TODO: Fixup reading environment variables
     /*
     {
 		extern char *network_error_str[];
