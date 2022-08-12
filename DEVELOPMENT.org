@@ -60,6 +60,16 @@ authors. Not quite easter eggs.
   num_veh_alive, num_veh_dead. The arrays live_vehicles, dead_vehicles are
   pointers into the *actual_vehicles*. Permanently 'dead' vehicles leave holes in
   *actual_vehicles*.
+
+Game Grid - MAX_GRIDS x MAX_VEHICLES
+- grid_entries[] :: Array of column name in game grid
+- (Byte) grid_val[][] ::
+- (char *) grid_ent[][] ::
+- (int) grid_id[] ::
+  
+- players_entries ::
+- vehicles_entries ::
+- teams_entries ::
   
 *** Defines(includes)
 - xtank.h :: Contains a bunch of useful defines. (Includes screen.h, vdesc.h,
@@ -79,13 +89,65 @@ authors. Not quite easter eggs.
 #else
 #define P_(s) ()
 #endif
-  #+end_src
+#+end_src
 
 - maze.h :: Data structures for storing descriptive maze information. Requires
   'teams.h', 'tanklimits.h' to be defined first as it uses *MAX_TEAMS*,
   *MAX_VEHICLES*.
 
-*** Main Loop
-
+*** Initialisation
 - init_changed_boxes :: Should be called at the beginning of each frame
 
+- set_terminal() :: Set's the current terminal number.
+
+- get_player_info() :: Prompt a player for their name, and vehicle name (which
+  needs to exist).
+  
+*** Main Menu Loop (interface.c)
+- main_interface(void) :: Called from main.c to start program. Declared in *proto.h*, defined in *interface.c.*
+- set_terminal(0) ::
+- init_interface() ::
+
+- fix_combantants(i) (SIC) :: Put player into game grid. Uses *grid_ent*, *grid_val,*
+  *players_entries*, *vehicles_entries*, *teams_entries*.
+
+- button_up() ::
+- follow_mouse() ::
+- display_file() ::
+- display_title() ::
+- display_settings() ::
+
+- win_exposed() ::
+- get_events() :: Get events to process in main event loop.
+
+- menu_hit() ::
+- erase_other_menus() :: 
+- menu_hit_p() :: Return menu choice by comparing event location (ev.x, ev.y).
+
+- sub_interface_main() ::
+- sub_interface_main() ::
+- sub_interface_load() ::
+- sub_interface_design() ::
+- sub_interface_help() ::
+- display_settings() ::
+- menu_unhighlight() ::
+- remove_player() ::
+- expose_win() ::
+- do_view() ::
+- sub_interface_machine() ::
+- sub_interface_play() :: See game loop
+- sub_interface_settings() ::
+- sub_interface_flags() ::
+- sub_interface_force() ::
+    
+- menu_display(Menu_int *menuobj, int menuid) ::  
+
+*** Game Loop
+- sub_interface_play() :: Choose the type of game to start. Standard, player,
+  robots or customize.
+- standard_combatants() ::
+- player_combatants() ::
+- robot_combatants() ::
+- customized_combatants() ::
+- interface_play() ::
+- menu_unhighlight() ::
