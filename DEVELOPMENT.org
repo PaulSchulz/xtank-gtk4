@@ -11,6 +11,7 @@
   - [[#game-loop][Game Loop]]
   - [[#graphics][Graphics]]
   - [[#graphics-objects-srcdisplayobjects][Graphics Objects (src/display/objects)]]
+  - [[#header-file-dependencies][Header file dependencies]]
 
 * Progress
 Not much at this stage.
@@ -230,4 +231,43 @@ Types
       lightc_picinfo
   };
 
+#+end_src
+** Header file dependencies
+When compiling, the header files are required with the following dependencies.
+This reflects the order that header files are requested for the first time. This
+list will change if the order the file *#includes* are changed in the source files.
+
+#+begin_src ascii
+main.char
+- xtank.h
+  - screen.h
+  - vdesc.h
+    - tanktypes.h
+      - sysdep.h
+    - tanklimits.h
+    - vehicleparts.h
+      - special-defs.h
+      - tread-defs.h
+    - object.h
+  - xtanklib.h
+    - map.h
+    - common.h
+    - message.h
+    - team.h
+    - game.h
+    - program.h
+    - settings.h
+      - maze.h
+    - lowlib.h
+- bullet.h
+  - vehicle.h
+    - special.h
+- clfkr.h
+- proto.h
+  - mdesign.h
+  - setup.h
+  - terminal.h
+  - graphics.h
+    - x11.h
+  - thread.h
 #+end_src
