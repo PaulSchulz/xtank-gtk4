@@ -1,6 +1,6 @@
 .PHONY: all clean
 
-PROG=  xtank-gtk4
+PROG=  xtank-pixbuf
 
 CFLAGS= -I${CURDIR} -I${CURDIR}/include \
 	-O0 -g
@@ -12,14 +12,14 @@ CFLAGS+= -DX11 -DUNIX -DS1024x864 -DKEYPAD_DETECT -DSTINGY_REDRAW \
 
 CFLAGS+= CFLAGS0+= -DDYNALOAD -DMULTI_SYNC -DTHREAD_SWAPCONTEXT
 
-CFLAGS+= -DXTANK_DIR="\"${CURDIR}/../..\""
+CFLAGS+= -DXTANK_DIR="\"${CURDIR}/..\""
 
 SRCS=  main.c \
 	   version.c
 
 OBJS:=	$(patsubst %.c,%.o,$(SRCS))
 
-CFLAGS0= -I -Iinclude -DUNIX -DX11
+CFLAGS0= -Iinclude -DUNIX -DX11
 
 DEFINES= -DALLDEFINES="\"${CFLAGS0}\""
 
@@ -47,10 +47,9 @@ xtank.gresources.c: xtank.gresource.xml xtank.ui
 
 ##############################################################################
 # Utilities
-version.c: ../bin/newversion.sh .buildnumber
-	echo "${.CURDIR}"
+version.c: ../../bin/newversion.sh .buildnumber
 	echo "${CURDIR}"
-	sh ../bin/newversion.sh
+	sh ../../bin/newversion.sh
 
 clean:
 	-rm *.o *.gresources.c
