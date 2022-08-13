@@ -1,16 +1,21 @@
 #+TITLE:Development Notes
 * Introduction :TOC:
 - [[#progress][Progress]]
-- [[#development][Development]]
-  - [[#research][Research]]
-  - [[#structure-notes][Structure Notes]]
+- [[#research][Research]]
+- [[#original-program-structure][Original Program Structure]]
+  - [[#general-comments][General Comments]]
+  - [[#notes][Notes]]
+  - [[#definesincludes][Defines(includes)]]
+  - [[#initialisation][Initialisation]]
+  - [[#main-menu-loop-interfacec][Main Menu Loop (interface.c)]]
+  - [[#game-loop][Game Loop]]
+  - [[#graphics][Graphics]]
+  - [[#graphics-objects-srcdisplayobjects][Graphics Objects (src/display/objects)]]
 
 * Progress
 Not much at this stage.
 
-* Development
-
-** Research
+* Research
 Programs in /research/ are used to implement, test and evaluate 
 various parts of the program.
 
@@ -22,9 +27,9 @@ various parts of the program.
 - /example-dlopen/ :: A *gmodule* example. GModule 2.0 is the Portable GLib API for
   dynamically loading modules. 
 
-** Structure Notes
+* Original Program Structure
 
-*** General Comments
+** General Comments
 The following are some idisyncratic features of the xtank code from the original
 authors. Not quite easter eggs.
 
@@ -33,7 +38,7 @@ authors. Not quite easter eggs.
 
 - #ifdef REALLY_RUDE :: Only one instance, but adds an additional help message. 
 
-*** Notes
+** Notes
 - (CLFkr) ConfigRunning, command_options :: Structure used to contain
   configuration. Initially stored in *command_options* in main.c, with settings
   loaded from command line options. Defined in *clfkr.h*
@@ -75,12 +80,18 @@ Game Grid - MAX_GRIDS x MAX_VEHICLES
 - players_entries ::
 - vehicles_entries ::
 - teams_entries ::
+Player Details/Combatants
+- (Combatant) combatant[MAX_VEHICLES] :: Structure defined in *vehicle.h*, global
+  variable defined in *setup.c*.
+  - int num_players - 1 (player) or 0 (robot)
+  - int player[] - ??? - Setup uses player[0] to contain combatant number. Was
+    xtank written to support multiple players per tank?
   
-*** Defines(includes)
+** Defines(includes)
 - xtank.h :: Contains a bunch of useful defines. (Includes screen.h, vdesc.h,
   xtanklib.h)
 
-  What are TEST_TURRENTS?
+  What are TEST_TURRETS?
 
 - proto.h :: Function prototypes. In the original code this header file
   contained all of the function prototypes for files except for *lowlib*, *highlib*
@@ -100,7 +111,7 @@ Game Grid - MAX_GRIDS x MAX_VEHICLES
   'teams.h', 'tanklimits.h' to be defined first as it uses *MAX_TEAMS*,
   *MAX_VEHICLES*.
 
-*** Initialisation
+** Initialisation
 - init_changed_boxes :: Should be called at the beginning of each frame
 
 - set_terminal() :: Set's the current terminal number.
@@ -108,7 +119,7 @@ Game Grid - MAX_GRIDS x MAX_VEHICLES
 - get_player_info() :: Prompt a player for their name, and vehicle name (which
   needs to exist).
   
-*** Main Menu Loop (interface.c)
+** Main Menu Loop (interface.c)
 - main_interface(void) :: Called from main.c to start program. Declared in *proto.h*, defined in *interface.c.*
 - set_terminal(0) ::
 - init_interface() ::
@@ -147,13 +158,76 @@ Game Grid - MAX_GRIDS x MAX_VEHICLES
     
 - menu_display(Menu_int *menuobj, int menuid) ::  
 
-*** Game Loop
+** Game Loop
 - sub_interface_play() :: Choose the type of game to start. Standard, player,
   robots or customize.
-
-- standard_combatants() ::
+Game setups
+- standard_combatants() ::  Sets up a combatant for each player and 5 + difficulty/2 robots.
 - player_combatants() ::
 - robot_combatants() ::
 - customized_combatants() ::
 - interface_play() ::
 - menu_unhighlight() ::
+
+** Graphics
+Defines
+- ANIM_WIN :: Window id that shows graphics
+- HELP_WIN :: Window id that displays help
+Globals
+- box_type_name[] :: Landmark names  
+Functions
+- clear_window() ::
+- draw_filled_rect() ::
+- draw_text() :: Put text on the screen
+- draw_objs() ::
+- draw_obj() ::
+- draw_picture_string() ::
+- draw_picture() ::
+- draw_text_left() ::
+
+** Graphics Objects (src/display/objects)
+Types
+- Picinfo :: The Segment array defines a polygon of the object outline. Used for
+  collision detection?
+#+begin_src C
+  typedef struct {
+	  Coord turret_coord[MAX_TURRETS];	/* relative to center */
+	  Segment segment[MAX_SEGMENTS];	/* polygon shaped to the picture */
+  }
+#+end_src
+- Picture ::
+  #+begin_src C
+    typedef struct {
+        int width;
+        int height;
+        int offset_x;
+        int offset_y;
+        int pixmap;
+    } Picture;
+  #+end_src
+- Object :: Screen object
+#+begin_src C
+  typedef struct {
+      char type[MAX_STRING];	// type of object
+      int num_pics;         // number of pictures in the object
+      Picture *pic;			// array of pictures of the object
+      int num_turrets;		// number of turrets in object
+      int num_segs;			// number of segments to represent object
+      Picinfo *picinfo;		// array of info about pictures
+  } Object;
+#+end_src
+  
+  Example
+#+begin_src C
+    #define lightc_views 16
+  
+    static Object lightc_obj = {
+      "lightc",
+      lightc_views,
+      lightc_pic,
+      0,			/* num_turrets */
+      4,			/* num_segs */
+      lightc_picinfo
+  };
+
+#+end_src
