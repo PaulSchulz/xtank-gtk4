@@ -23,6 +23,8 @@ various parts of the program.
 - /xtank-dlopen/ :: Compile and load a separate program (using *dlopen*), used for
   implementing additional modules. (eg. robot programs, HUD improvements)
 
+- /xtank-pixbuf/ :: Experiment for writing pixbuf images to Gtk4 buffer.
+  
 - /example-dlopen/ :: A *dlopen* example.
 
 - /example-dlopen/ :: A *gmodule* example. GModule 2.0 is the Portable GLib API for
