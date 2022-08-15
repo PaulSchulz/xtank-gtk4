@@ -136,9 +136,10 @@ process_object(void) {
     int h = picture->height;
     int byte_width = w/8 + 1;
 
-    fprintf(stderr, "w: %d (%d)  h: %d\n", w, byte_width, h);
+    fprintf(stderr, " w: %d (%d)  h: %d\n", w, byte_width, h);
 
     for (int j=0; j<h; j++){
+        fprintf(stderr, " ");
         for(int i=0; i<w; i++){
             int byte = byte_width*j + i/8;
             int bit  = i%8;
