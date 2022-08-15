@@ -189,34 +189,19 @@ Functions
 - draw_text_left() ::
 
 ** Graphics Objects (src/display/objects)
+
+The data for graphical objects are stored in a split C data structure, eg. *(Object) medusa_obj* and *(unsigned char) medusa_bitmap[]*, which store meta data and bitmap data respectively.  
+
 Types
-- Picinfo :: The Segment array defines a polygon of the object outline. Used for
-  collision detection?
+- Object :: Screen object, top level data structure
 #+begin_src C
   typedef struct {
-	  Coord turret_coord[MAX_TURRETS];	/* relative to center */
-	  Segment segment[MAX_SEGMENTS];	/* polygon shaped to the picture */
-  }
-#+end_src
-- Picture ::
-  #+begin_src C
-    typedef struct {
-        int width;
-        int height;
-        int offset_x;
-        int offset_y;
-        int pixmap;
-    } Picture;
-  #+end_src
-- Object :: Screen object
-#+begin_src C
-  typedef struct {
-      char type[MAX_STRING];	// type of object
-      int num_pics;         // number of pictures in the object
-      Picture *pic;			// array of pictures of the object
-      int num_turrets;		// number of turrets in object
-      int num_segs;			// number of segments to represent object
-      Picinfo *picinfo;		// array of info about pictures
+      char type[MAX_STRING]; // type of object
+      int num_pics;          // number of pictures in the screen object
+      Picture *pic;			 // array of pictures of the object
+      int num_turrets;		 // number of turrets in object
+      int num_segs;			 // number of segments to represent object
+      Picinfo *picinfo;		 // structure with arrays for turrent locations and collision boundry
   } Object;
 #+end_src
   
@@ -228,12 +213,70 @@ Types
       "lightc",
       lightc_views,
       lightc_pic,
-      0,			/* num_turrets */
-      4,			/* num_segs */
+      0,			// num_turrets 
+      4,			// num_segs 
       lightc_picinfo
   };
 
 #+end_src
+- Picinfo :: The Segment array defines a polygon of the object outline. Used for
+  collision detection
+#+begin_src C
+  typedef struct {
+	  Coord turret_coord[MAX_TURRETS];	// relative to center 
+	  Segment segment[MAX_SEGMENTS];	// polygon shaped to the picture 
+  }
+#+end_src
+- Picture :: Details of bitmap image. Used to decode raw data in *_pixmap*.
+  #+begin_src C
+    typedef struct {
+        int width;
+        int height;
+        int offset_x;
+        int offset_y;
+        int pixmap;
+    } Picture;
+  #+end_src
+
+- (unsigned char **) pixmap data :: An array of pointers into pixmap arrays, one
+  for each picture of the object.
+
+  To decode the *medusa* data stored in *medusa_obj* and *medusa_bitmap[]*, use:
+  #+begin_src C
+    int pic = 0;  // Picture to extract
+
+    Object *object      = &medusa_obj;
+    Picture *picture    = &object->pic[pic];
+    unsigned char *data = medusa_bitmap[pic];
+
+    // Object bitmap data is stored as single bit (mono), 8 bit, little-endien, with
+    // rows padded to the next byte boundry (byte width).
+
+    int w = picture->width;
+    int h = picture->height;
+    int byte_width = w/8 + 1;
+
+    fprintf(stderr, "w: %d (%d)  h: %d\n", w, byte_width, h);
+
+    for (int j=0; j<h; j++){
+        for(int i=0; i<w; i++){
+            int byte = byte_width*j + i/8;
+            int bit  = i%8;
+
+            if (data[byte] & 1<<bit) {
+                fprintf(stderr, "*");
+
+            } else {
+                fprintf(stderr, " ");
+            }
+
+        }
+        fprintf(stderr, "\n");
+    }
+
+
+  #+end_src
+
 ** Header file dependencies
 When compiling, the header files are required with the following dependencies.
 This reflects the order that header files are requested for the first time. This

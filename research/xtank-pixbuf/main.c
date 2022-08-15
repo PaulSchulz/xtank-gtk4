@@ -143,15 +143,12 @@ process_object(void) {
             int byte = byte_width*j + i/8;
             int bit  = i%8;
 
-            //fprintf(stderr, "%0x ", circle_bitmap[0][byte] & 1<<bit);
-
-            if ((data[byte] & 1<<bit)>>bit != 0) {
+            if (data[byte] & 1<<bit) {
                 fprintf(stderr, "*");
 
             } else {
                 fprintf(stderr, " ");
             }
-
         }
         fprintf(stderr, "\n");
     }
