@@ -111,6 +111,56 @@ debugger_break(void)
 
 //////////////////////////////////////////////////////////////////////////////
 
+#include "display/objects/circle.obj"
+#include "display/objects/medusa.obj"
+
+//////////////////////////////////////////////////////////////////////////////
+
+static void
+process_object(void) {
+
+    GdkPixbuf *pix_buffer;
+
+//    pix_buffer = gdk_pixbuf_new (
+//        GDK_COLORSPACE_RGB,
+//        TRUE,
+//        8,
+//        45, 41);
+
+    int pic = 0;
+    Object *object = &medusa_obj;
+    Picture *picture = &object->pic[pic];
+    unsigned char *data = medusa_bitmap[pic];
+
+    int w = picture->width;
+    int h = picture->height;
+    int byte_width = w/8 + 1;
+
+    fprintf(stderr, "w: %d (%d)  h: %d\n", w, byte_width, h);
+
+    for (int j=0; j<h; j++){
+        for(int i=0; i<w; i++){
+            int byte = byte_width*j + i/8;
+            int bit  = i%8;
+
+            //fprintf(stderr, "%0x ", circle_bitmap[0][byte] & 1<<bit);
+
+            if ((data[byte] & 1<<bit)>>bit != 0) {
+                fprintf(stderr, "*");
+
+            } else {
+                fprintf(stderr, " ");
+            }
+
+        }
+        fprintf(stderr, "\n");
+    }
+}
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+
 static void
 draw_function (GtkDrawingArea *area, cairo_t *cr, int width, int height, gpointer user_data) {
 
@@ -123,6 +173,10 @@ draw_function (GtkDrawingArea *area, cairo_t *cr, int width, int height, gpointe
 
     cairo_arc (cr, 100, 100, 10, 0, 2 * M_PI);
     cairo_stroke (cr);
+
+    //gdk_cairo_set_source_pixbuf (cr, pix_buffer, 0, 0);
+    //cairo_paint (cr);
+
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -419,6 +473,9 @@ main (int argc, char **argv) {
 
 	//return (0);
 
+    // Test
+    // Evaluate graphical objects
+    process_object();
 
     //////////////////////////////////////////////////////////////////////////
     app = gtk_application_new (APPLICATION_ID, G_APPLICATION_FLAGS_NONE);
