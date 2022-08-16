@@ -70,7 +70,8 @@ Picinfo;
 	  int height;
 	  int offset_x;
 	  int offset_y;
-	  int pixmap;
+	  int pixmap;        // Remove this eventually
+      GdkPixbuf *pixbuf;
   }
 Picture;
 

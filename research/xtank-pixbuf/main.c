@@ -114,50 +114,72 @@ debugger_break(void)
 #include "display/objects/circle.obj"
 #include "display/objects/medusa.obj"
 
-//////////////////////////////////////////////////////////////////////////////
 
+//////////////////////////////////////////////////////////////////////////////
 static void
-process_object(void) {
+process_object(Object *object, unsigned char **pixdata) {
+    int pic = 0;
+    fprintf(stderr,"-----------------------\n");
+    fprintf(stderr, "type:        %s\n", (char *)object->type);
+    fprintf(stderr, "num_pics:    %d\n", object->num_pics);
+    fprintf(stderr, "num_turrets: %d\n", object->num_turrets);
+    fprintf(stderr, "num_segs:    %d\n", object->num_segs);
+    fprintf(stderr,"-----------------------\n");
 
     GdkPixbuf *pix_buffer;
 
-//    pix_buffer = gdk_pixbuf_new (
-//        GDK_COLORSPACE_RGB,
-//        TRUE,
-//        8,
-//        45, 41);
+    for (int pic=0; pic<object->num_pics; pic++) {
+        Picture *picture = &object->pic[pic];
+        unsigned char *data = pixdata[pic];
 
-    int pic = 0;
-    Object *object = &medusa_obj;
-    Picture *picture = &object->pic[pic];
-    unsigned char *data = medusa_bitmap[pic];
+        int w = picture->width;
+        int h = picture->height;
+        int byte_width = w/8 + 1;
 
-    int w = picture->width;
-    int h = picture->height;
-    int byte_width = w/8 + 1;
+        // Create new pixbuf
+        pix_buffer = gdk_pixbuf_new (GDK_COLORSPACE_RGB, TRUE, 8, w, h);
+        fprintf(stderr, "rowstride: %d\n", gdk_pixbuf_get_rowstride(pix_buffer));
+        fprintf(stderr, "n_channels: %d\n", gdk_pixbuf_get_n_channels(pix_buffer));
+        fprintf(stderr, "w: %d (%d)  h: %d\n", w, byte_width, h);
 
-    fprintf(stderr, " w: %d (%d)  h: %d\n", w, byte_width, h);
+        for (int j=0; j<h; j++){
+            fprintf(stderr, " ");
+            for(int i=0; i<w; i++){
+                int byte = byte_width*j + i/8;
+                int bit  = i%8;
 
-    for (int j=0; j<h; j++){
-        fprintf(stderr, " ");
-        for(int i=0; i<w; i++){
-            int byte = byte_width*j + i/8;
-            int bit  = i%8;
+                if (data[byte] & 1<<bit) {
+                    fprintf(stderr, "*");
+                } else {
+                    fprintf(stderr, " ");
+                }
 
-            if (data[byte] & 1<<bit) {
-                fprintf(stderr, "*");
+                int offset = j*gdk_pixbuf_get_rowstride(pix_buffer)
+                    + i*gdk_pixbuf_get_n_channels(pix_buffer);
+                guchar * pixel = &gdk_pixbuf_get_pixels(pix_buffer)[ offset ]; // get pixel pointer
 
-            } else {
-                fprintf(stderr, " ");
+                if (data[byte] & 1<<bit) {
+                    pixel[0] = 0xFF;
+                    pixel[1] = 0xFF;
+                    pixel[2] = 0xFF;
+                    pixel[3] = 0xFF;
+                } else {
+                    pixel[0] = 0x00;
+                    pixel[1] = 0x00;
+                    pixel[2] = 0x00;
+                    pixel[3] = 0x00;
+                }
             }
+            fprintf(stderr, "\n");
         }
-        fprintf(stderr, "\n");
-    }
+        picture->pixbuf = pix_buffer;
+    } // loop: pic
+
 }
 
 
-//////////////////////////////////////////////////////////////////////////////
-
+//////////////////////////////////////////////////////////////////////////////j
+int cticks = 0;
 
 static void
 draw_function (GtkDrawingArea *area, cairo_t *cr, int width, int height, gpointer user_data) {
@@ -165,16 +187,30 @@ draw_function (GtkDrawingArea *area, cairo_t *cr, int width, int height, gpointe
     cairo_set_source_rgb (cr, 0.0, 0.0, 0.0); /* black */
     cairo_paint (cr);
 
-    cairo_set_source_rgb (cr, 1.0, 0.0, 0.0);
-    cairo_set_line_width (cr, 1.0);
-    // cairo_move_to (cr, 100, 100);
+    // cairo_set_source_rgb (cr, 1.0, 0.0, 0.0);
+    // cairo_set_line_width (cr, 1.0);
 
-    cairo_arc (cr, 100, 100, 10, 0, 2 * M_PI);
-    cairo_stroke (cr);
+    // cairo_arc (cr, 100, 100, 10, 0, 2 * M_PI);
+    // cairo_stroke (cr);
 
-    //gdk_cairo_set_source_pixbuf (cr, pix_buffer, 0, 0);
-    //cairo_paint (cr);
+    GdkPixbuf *pix_buffer;
 
+    pix_buffer = medusa_obj.pic[0].pixbuf;
+    gdk_cairo_set_source_pixbuf (cr, pix_buffer, 10, 10);
+    cairo_paint (cr);
+
+    int tik = (cticks / 5)%9;
+    Picture *picture = &circle_obj.pic[tik];
+
+    // pix_buffer = circle_obj.pic[tik].pixbuf;
+    pix_buffer = picture->pixbuf;
+    gdk_cairo_set_source_pixbuf (cr,
+                                 pix_buffer,
+                                 50-picture->offset_x,
+                                 50-picture->offset_y);
+    cairo_paint (cr);
+
+    cticks++;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -473,7 +509,8 @@ main (int argc, char **argv) {
 
     // Test
     // Evaluate graphical objects
-    process_object();
+    process_object(&medusa_obj, medusa_bitmap);
+    process_object(&circle_obj, circle_bitmap);
 
     //////////////////////////////////////////////////////////////////////////
     app = gtk_application_new (APPLICATION_ID, G_APPLICATION_FLAGS_NONE);
