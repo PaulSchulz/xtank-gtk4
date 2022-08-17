@@ -173,12 +173,12 @@ int object_error;
 Object *
 process_object(Object *object, unsigned char **pixdata) {
     int pic = 0;
-    fprintf(stderr,"-----------------------\n");
-    fprintf(stderr, "type:        %s\n", (char *)object->type);
-    fprintf(stderr, "num_pics:    %d\n", object->num_pics);
-    fprintf(stderr, "num_turrets: %d\n", object->num_turrets);
-    fprintf(stderr, "num_segs:    %d\n", object->num_segs);
-    fprintf(stderr,"-----------------------\n");
+    //  fprintf(stderr,"-----------------------\n");
+    //  fprintf(stderr, "type:        %s\n", (char *)object->type);
+    //  fprintf(stderr, "num_pics:    %d\n", object->num_pics);
+    //  fprintf(stderr, "num_turrets: %d\n", object->num_turrets);
+    //  fprintf(stderr, "num_segs:    %d\n", object->num_segs);
+    //  fprintf(stderr,"-----------------------\n");
 
     GdkPixbuf *pix_buffer;
 
@@ -192,13 +192,13 @@ process_object(Object *object, unsigned char **pixdata) {
 
         // Create new pixbuf
         pix_buffer = gdk_pixbuf_new (GDK_COLORSPACE_RGB, TRUE, 8, w, h);
-        fprintf(stderr, "rowstride: %d\n", gdk_pixbuf_get_rowstride(pix_buffer));
-        fprintf(stderr, "n_channels: %d\n", gdk_pixbuf_get_n_channels(pix_buffer));
-        fprintf(stderr, "w: %d (%d)  h: %d\n", w, byte_width, h);
+        // fprintf(stderr, "rowstride: %d\n", gdk_pixbuf_get_rowstride(pix_buffer));
+        // fprintf(stderr, "n_channels: %d\n", gdk_pixbuf_get_n_channels(pix_buffer));
+        // fprintf(stderr, "w: %d (%d)  h: %d\n", w, byte_width, h);
 
-        fprintf(stderr, "rows: ");
+        // fprintf(stderr, "rows: ");
         for (int j=0; j<h; j++){
-            fprintf(stderr, ".");
+            // fprintf(stderr, ".");
             for(int i=0; i<w; i++){
                 int byte = byte_width*j + i/8;
                 int bit  = i%8;
@@ -228,7 +228,7 @@ process_object(Object *object, unsigned char **pixdata) {
             }
             //          fprintf(stderr, "\n");
         }
-        fprintf(stderr,"\n");
+        // fprintf(stderr,"\n");
         picture->pixbuf = pix_buffer;
     } // loop: pic
 
@@ -296,42 +296,131 @@ process_objects (void) {
 
 }
 
-
 //////////////////////////////////////////////////////////////////////////////j
 static void
-draw_object (cairo_t *cr, int x, int y, Object *object, int pic) {
-
-    GdkPixbuf *pix_buffer;
-    Picture *picture = &object->pic[pic];
-
-    pix_buffer = picture->pixbuf;
+draw_picture_gtk4 (cairo_t *cr, int x, int y, Picture *picture) {
     gdk_cairo_set_source_pixbuf (cr,
-                                 pix_buffer,
+                                 picture->pixbuf,
                                  x - picture->offset_x,
                                  y - picture->offset_y);
     cairo_paint (cr);
+}
+
+static void
+draw_object (cairo_t *cr, int x, int y, Object *object, int pic) {
+
+    // TODO Add bounds checking for pic.
+    Picture *picture = &object->pic[pic];
+    draw_picture_gtk4(cr, x, y, picture);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+// gtk4.c - to be created
+#define NO_TEXT_CLIP
+
+// Defined in graphics.h
+// #define L_FONT 0
+// #define WHITE 0
+
+void
+draw_text_gtk4 (cairo_t *cr, int x, int y, char *str, int font, int color) {
+
+    cairo_set_source_rgb (cr, 1.0, 1.0, 1.0); // white
+    cairo_move_to (cr, x, y);
+    cairo_show_text (cr, str);
 
 }
 
+// Draws the specified view of the object with the string written beneath
+// at the specified location in the animation window.  The adj parameter
+// is added to the picture coordinates but not the text coordinates.
+// TODO Fix me!
+void
+draw_picture_string_gtk4 (cairo_t *cr, Object *obj, int view, char *str, int x, int y, int adj) {
+    draw_picture_gtk4(cr, x + adj, y + adj, &obj->pic[view]);
+    //if (str[0] != '\0')
+    //    draw_text_left(ANIM_WIN, x + TEXT_OFFSET, y - font_height(M_FONT) / 2,
+    //str, M_FONT, DRAW_COPY, WHITE);
+}
 
-//////////////////////////////////////////////////////////////////////////////j
-int cticks = 0;
+#define PIC_X 200
+#define PIC_Y 20
 
-static void
-draw_function (GtkDrawingArea *area, cairo_t *cr, int width, int height, gpointer user_data) {
-    int tik;
-    int x;
-    int y;
-    int vskip;
+void
+draw_objs_gtk4(cairo_t *cr,
+               Object *obj[],
+               Boolean text,
+               int first,
+               int last,
+               int view,
+               int x,
+               int y,
+               int height) {
 
-    cairo_set_source_rgb (cr, 0.0, 0.0, 0.0); /* black */
+
+    int i;
+
+    for (i = first; i < last; i++)
+        if (view < obj[i]->num_pics)
+            draw_picture_string_gtk4,(obj[i], view, (text ? obj[i]->type : ""),
+                                      x + PIC_X,
+                                y + PIC_Y + height * (i - first), 0);
+
+    // cairo_set_source_rgb (cr, 1.0, 1.0, 1.0); // white
+    // cairo_move_to (cr, x, y);
+    // cairo_show_text (cr, str);
+
+}
+//////////////////////////////////////////////////////////////////////////////
+// display.c
+
+#define BULLET_X 180
+#define VEH_Y 0
+
+void
+display_pics_gtk4(cairo_t *cr) {
+
+    // Put in separator rectangles between the pictures */
+    // draw_filled_rect(ANIM_WIN, BULLET_X - 1, 0, 3, EXP_Y, DRAW_COPY, WHITE);
+    // draw_filled_rect(ANIM_WIN, LAND_X - 1, 0, 3, EXP_Y, DRAW_COPY, WHITE);
+    // draw_filled_rect(ANIM_WIN, 0, EXP_Y - 1, ANIM_WIN_WIDTH, 3, DRAW_COPY,
+    //                 WHITE);
+
+    // Draw the vehicles in one column
+    draw_text_gtk4(cr, BULLET_X / 2, VEH_Y + 5, "Vehicles", L_FONT, WHITE);
+//    draw_objs_gtk4(cr, vehicle_objs, TRUE, 0, num_vehicle_objs, 0, VEH_X, VEH_Y, VEHICLE_H);
+
+}
+
+//////////////////////////////////////////////////////////////////////////////
+        int cticks = 0;
+
+    static void
+        draw_function (GtkDrawingArea *area, cairo_t *cr, int width, int height, gpointer user_data) {
+        int tik;
+        int x;
+        int y;
+        int vskip;
+
+    cairo_set_source_rgb (cr, 0.0, 0.0, 0.0); // black
     cairo_paint (cr);
 
-    // cairo_set_source_rgb (cr, 1.0, 0.0, 0.0);
-    // cairo_set_line_width (cr, 1.0);
+    display_pics_gtk4(cr);
 
-    // cairo_arc (cr, 100, 100, 10, 0, 2 * M_PI);
-    // cairo_stroke (cr);
+    cairo_set_source_rgb (cr, 1.0, 1.0, 1.0); // white
+
+    // cairo_select_font_face(cr, "Purisa",
+    //                        CAIRO_FONT_SLANT_NORMAL,
+    // CAIRO_FONT_WEIGHT_BOLD);
+    cairo_select_font_face(cr, "cairo:sans-serif",
+                           CAIRO_FONT_SLANT_NORMAL,
+                           CAIRO_FONT_WEIGHT_NORMAL);
+
+    cairo_set_font_size(cr, 13);
+    cairo_move_to(cr, 20, 30);
+    cairo_show_text(cr, "Most relationships seem so transitory");
+    cairo_stroke(cr);
+
 
     tik = (cticks / 5)%4;
     x=100; y=100;
