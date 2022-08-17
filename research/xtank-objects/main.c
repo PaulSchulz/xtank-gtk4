@@ -110,13 +110,67 @@ debugger_break(void)
 }
 
 //////////////////////////////////////////////////////////////////////////////
-#include "display/objects/bullets.obj"
-#include "display/objects/circle.obj"
+// Vehicles
+#include "display/objects/lightc.obj"
+#include "display/objects/hexo.obj"
+#include "display/objects/spider.obj"
+#include "display/objects/psycho.obj"
+#include "display/objects/tornado.obj"
+#include "display/objects/marauder.obj"
+#include "display/objects/tiger.obj"
+#include "display/objects/rhino.obj"
 #include "display/objects/medusa.obj"
+#include "display/objects/malice.obj"
+#include "display/objects/trike.obj"
+#include "display/objects/panzy.obj"
+#include "display/objects/disk.obj"
+#include "display/objects/delta.obj"
 
+// Turret
+#include "display/objects/turret_sm.obj"
+
+// Explosions
+#include "display/objects/shock.obj"
+#include "display/objects/gleam.obj"
+#include "display/objects/tink.obj"
+#include "display/objects/soft.obj"
+#include "display/objects/circle.obj"
+#include "display/objects/fiery.obj"
+#include "display/objects/double.obj"
+#include "display/objects/exhaust.obj"
+#include "display/objects/electric.obj"
+#include "display/objects/bullets.obj"
+#include "display/objects/nuke.obj"
+
+// Landmarks
+#include "display/objects/anm_lmarks.obj"
+#include "display/objects/map_lmarks.obj"
+#include "display/objects/des_lmarks.obj"
+
+// Other
+#include "display/objects/xtank.obj"
+#include "display/objects/team.obj"
+#include "display/objects/terp.obj"
+
+int num_vehicle_objs;
+Object *vehicle_obj[MAX_VEHICLE_OBJS];
+
+int num_turret_objs;
+Object *turret_obj[MAX_TURRET_OBJS];
+
+int num_exp_objs;
+Object *exp_obj[MAX_EXP_OBJS];
+
+int num_bullet_objs;   /* NUM_BULLET_OBJS defined in bullets.obj */
+Object *bullet_obj[NUM_BULLET_OBJS];
+
+int num_landmark_objs;
+Object *landmark_obj[MAX_LANDMARK_OBJS];
+
+int object_error;
 
 //////////////////////////////////////////////////////////////////////////////
-static void
+Object *
 process_object(Object *object, unsigned char **pixdata) {
     int pic = 0;
     fprintf(stderr,"-----------------------\n");
@@ -159,6 +213,7 @@ process_object(Object *object, unsigned char **pixdata) {
                     + i*gdk_pixbuf_get_n_channels(pix_buffer);
                 guchar * pixel = &gdk_pixbuf_get_pixels(pix_buffer)[ offset ]; // get pixel pointer
 
+                // Black and White
                 if (data[byte] & 1<<bit) {
                     pixel[0] = 0xFF;
                     pixel[1] = 0xFF;
@@ -176,6 +231,69 @@ process_object(Object *object, unsigned char **pixdata) {
         fprintf(stderr,"\n");
         picture->pixbuf = pix_buffer;
     } // loop: pic
+
+    return object;
+}
+
+// Similar to 'make_objects' in original code.
+static void
+process_objects (void) {
+    fprintf(stderr,"*** process_objects()\n");
+
+    int num;
+
+    // Clear the error flag
+    object_error = 0;
+
+    // Make all of the vehicle objects
+    num = 0;
+    vehicle_obj[num++] = process_object(&lightc_obj, lightc_bitmap);
+    vehicle_obj[num++] = process_object(&trike_obj, trike_bitmap);
+    vehicle_obj[num++] = process_object(&hexo_obj, hexo_bitmap);
+    vehicle_obj[num++] = process_object(&spider_obj, spider_bitmap);
+    vehicle_obj[num++] = process_object(&psycho_obj, psycho_bitmap);
+    vehicle_obj[num++] = process_object(&tornado_obj, tornado_bitmap);
+    vehicle_obj[num++] = process_object(&marauder_obj, marauder_bitmap);
+    vehicle_obj[num++] = process_object(&tiger_obj, tiger_bitmap);
+    vehicle_obj[num++] = process_object(&rhino_obj, rhino_bitmap);
+    vehicle_obj[num++] = process_object(&medusa_obj, medusa_bitmap);
+    vehicle_obj[num++] = process_object(&delta_obj, delta_bitmap);
+    vehicle_obj[num++] = process_object(&disk_obj, disk_bitmap);
+    vehicle_obj[num++] = process_object(&malice_obj, malice_bitmap);
+    vehicle_obj[num++] = process_object(&panzy_obj, panzy_bitmap);
+    num_vehicle_objs = num;
+
+     // Make all of the explosion objects
+    num = 0;
+    exp_obj[num++] = process_object(&shock_obj, shock_bitmap);
+    exp_obj[num++] = process_object(&gleam_obj, gleam_bitmap);
+    exp_obj[num++] = process_object(&tink_obj, tink_bitmap);
+    exp_obj[num++] = process_object(&soft_obj, soft_bitmap);
+    exp_obj[num++] = process_object(&circle_obj, circle_bitmap);
+    exp_obj[num++] = process_object(&fiery_obj, fiery_bitmap);
+    exp_obj[num++] = process_object(&double_obj, double_bitmap);
+    exp_obj[num++] = process_object(&exhaust_obj, exhaust_bitmap);
+    num_exp_objs = num;
+
+    /* Make the bullet object */
+    num = 0;
+    bullet_obj[num++] = process_object(&lmg_obj, lmg_bitmap);
+    bullet_obj[num++] = process_object(&mg_obj, mg_bitmap);
+    bullet_obj[num++] = process_object(&hmg_obj, hmg_bitmap);
+    bullet_obj[num++] = process_object(&lac_obj, lac_bitmap);
+    bullet_obj[num++] = process_object(&ac_obj, ac_bitmap);
+    bullet_obj[num++] = process_object(&hac_obj, hac_bitmap);
+    bullet_obj[num++] = process_object(&lrl_obj, lrl_bitmap);
+    bullet_obj[num++] = process_object(&rl_obj, rl_bitmap);
+    bullet_obj[num++] = process_object(&hrl_obj, hrl_bitmap);
+    bullet_obj[num++] = process_object(&as_obj, as_bitmap);
+    bullet_obj[num++] = process_object(&ft_obj, ft_bitmap);
+    bullet_obj[num++] = process_object(&seek_obj, seek_bitmap);
+    bullet_obj[num++] = process_object(&pr_obj, pr_bitmap);
+    bullet_obj[num++] = process_object(&um_obj, um_bitmap);
+    num_bullet_objs = num;
+
+
 }
 
 
@@ -204,6 +322,7 @@ draw_function (GtkDrawingArea *area, cairo_t *cr, int width, int height, gpointe
     int tik;
     int x;
     int y;
+    int vskip;
 
     cairo_set_source_rgb (cr, 0.0, 0.0, 0.0); /* black */
     cairo_paint (cr);
@@ -223,26 +342,27 @@ draw_function (GtkDrawingArea *area, cairo_t *cr, int width, int height, gpointe
     draw_object(cr, x, y, &circle_obj, tik);
 
     tik=0;
-    x=400; y=100;
-    int vskip=20;
 
-    draw_object(cr, x, y, &lmg_obj, 0);
-    y+=vskip; draw_object(cr, x, y, &mg_obj, 0);
-    y+=vskip; draw_object(cr, x, y, &hmg_obj, 0);
+    x=200; y=40;
+    vskip=60;
+    for (int i=0; i<num_vehicle_objs; i++){
+        draw_object(cr, x, y, vehicle_obj[i], 0);
+        y+=vskip;
+    }
 
-    y+=vskip; draw_object(cr, x, y, &lac_obj, 0);
-    y+=vskip; draw_object(cr, x, y, &ac_obj, 0);
-    y+=vskip; draw_object(cr, x, y, &hac_obj, 0);
+    x=400; y=40;
+    vskip=20;
+    for (int i=0; i<num_bullet_objs; i++){
+        draw_object(cr, x, y, bullet_obj[i], 0);
+        y+=vskip;
+    }
 
-    y+=vskip; draw_object(cr, x, y, &lrl_obj, 0);
-    y+=vskip; draw_object(cr, x, y, &rl_obj, 0);
-    y+=vskip; draw_object(cr, x, y, &hrl_obj, 0);
-
-    y+=vskip; draw_object(cr, x, y, &as_obj, 0);
-    y+=vskip; draw_object(cr, x, y, &ft_obj, 0);
-    y+=vskip; draw_object(cr, x, y, &seek_obj, 0);
-    y+=vskip; draw_object(cr, x, y, &pr_obj, 0);
-    y+=vskip; draw_object(cr, x, y, &um_obj, 0);
+    x=600; y=40;
+    vskip=20;
+    for (int i=0; i<num_exp_objs; i++){
+        draw_object(cr, x, y, exp_obj[i], 0);
+        y+=vskip;
+    }
 
 
 
@@ -507,7 +627,7 @@ main (int argc, char **argv) {
       }
       continue;
       }
-      if (make_terminal(argv[i]))
+      if (process_terminal(argv[i]))
       rorre(video_error_str);
       }
       } else if (make_terminal(displayname))
@@ -545,26 +665,7 @@ main (int argc, char **argv) {
 
     // Test
     // Evaluate graphical objects
-    process_object(&lmg_obj, lmg_bitmap);
-    process_object(&mg_obj,  mg_bitmap);
-    process_object(&hmg_obj, hmg_bitmap);
-
-    process_object(&lac_obj, lac_bitmap);
-    process_object(&ac_obj,  ac_bitmap);
-    process_object(&hac_obj, hac_bitmap);
-
-    process_object(&lrl_obj, lrl_bitmap);
-    process_object(&rl_obj,  rl_bitmap);
-    process_object(&hrl_obj, hrl_bitmap);
-
-    process_object(&as_obj,   as_bitmap);
-    process_object(&ft_obj,   ft_bitmap);
-    process_object(&seek_obj, seek_bitmap);
-    process_object(&pr_obj,   pr_bitmap);
-    process_object(&um_obj,   um_bitmap);
-
-    process_object(&medusa_obj, medusa_bitmap);
-    process_object(&circle_obj, circle_bitmap);
+    process_objects();
 
     //////////////////////////////////////////////////////////////////////////
     app = gtk_application_new (APPLICATION_ID, G_APPLICATION_FLAGS_NONE);
