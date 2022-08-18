@@ -110,6 +110,8 @@ debugger_break(void)
 }
 
 //////////////////////////////////////////////////////////////////////////////
+// objects.c
+
 // Vehicles
 #include "display/objects/lightc.obj"
 #include "display/objects/hexo.obj"
@@ -161,24 +163,25 @@ Object *turret_obj[MAX_TURRET_OBJS];
 int num_exp_objs;
 Object *exp_obj[MAX_EXP_OBJS];
 
-int num_bullet_objs;   /* NUM_BULLET_OBJS defined in bullets.obj */
+int num_bullet_objs;   // NUM_BULLET_OBJS defined in bullets.obj
 Object *bullet_obj[NUM_BULLET_OBJS];
 
 int num_landmark_objs;
 Object *landmark_obj[MAX_LANDMARK_OBJS];
 
+int num_random_objs;
+Object *random_obj[MAX_RANDOM_OBJS];
+
 int object_error;
 
 //////////////////////////////////////////////////////////////////////////////
+
+
+
+
 Object *
 process_object(Object *object, unsigned char **pixdata) {
     int pic = 0;
-    //  fprintf(stderr,"-----------------------\n");
-    //  fprintf(stderr, "type:        %s\n", (char *)object->type);
-    //  fprintf(stderr, "num_pics:    %d\n", object->num_pics);
-    //  fprintf(stderr, "num_turrets: %d\n", object->num_turrets);
-    //  fprintf(stderr, "num_segs:    %d\n", object->num_segs);
-    //  fprintf(stderr,"-----------------------\n");
 
     GdkPixbuf *pix_buffer;
 
@@ -188,29 +191,20 @@ process_object(Object *object, unsigned char **pixdata) {
 
         int w = picture->width;
         int h = picture->height;
-        int byte_width = w/8 + 1;
+        int byte_width = w/8;
+        if (w%8 != 0) byte_width++; // Adjust width to match data
 
         // Create new pixbuf
         pix_buffer = gdk_pixbuf_new (GDK_COLORSPACE_RGB, TRUE, 8, w, h);
-        // fprintf(stderr, "rowstride: %d\n", gdk_pixbuf_get_rowstride(pix_buffer));
-        // fprintf(stderr, "n_channels: %d\n", gdk_pixbuf_get_n_channels(pix_buffer));
-        // fprintf(stderr, "w: %d (%d)  h: %d\n", w, byte_width, h);
 
-        // fprintf(stderr, "rows: ");
         for (int j=0; j<h; j++){
-            // fprintf(stderr, ".");
             for(int i=0; i<w; i++){
                 int byte = byte_width*j + i/8;
                 int bit  = i%8;
 
-//                if (data[byte] & 1<<bit) {
-//                    fprintf(stderr, "*");
-//                } else {
-//                fprintf(stderr, " ");
-//                }
-
-                int offset = j*gdk_pixbuf_get_rowstride(pix_buffer)
-                    + i*gdk_pixbuf_get_n_channels(pix_buffer);
+                int offset
+                    = gdk_pixbuf_get_rowstride(pix_buffer)*j
+                    + gdk_pixbuf_get_n_channels(pix_buffer)*i;
                 guchar * pixel = &gdk_pixbuf_get_pixels(pix_buffer)[ offset ]; // get pixel pointer
 
                 // Black and White
@@ -225,10 +219,8 @@ process_object(Object *object, unsigned char **pixdata) {
                     pixel[2] = 0x00;
                     pixel[3] = 0x00;
                 }
-            }
-            //          fprintf(stderr, "\n");
+             }
         }
-        // fprintf(stderr,"\n");
         picture->pixbuf = pix_buffer;
     } // loop: pic
 
@@ -236,7 +228,7 @@ process_object(Object *object, unsigned char **pixdata) {
 }
 
 // Similar to 'make_objects' in original code.
-static void
+int
 process_objects (void) {
     fprintf(stderr,"*** process_objects()\n");
 
@@ -246,54 +238,80 @@ process_objects (void) {
     object_error = 0;
 
     // Make all of the vehicle objects
-    num = 0;
-    vehicle_obj[num++] = process_object(&lightc_obj, lightc_bitmap);
-    vehicle_obj[num++] = process_object(&trike_obj, trike_bitmap);
-    vehicle_obj[num++] = process_object(&hexo_obj, hexo_bitmap);
-    vehicle_obj[num++] = process_object(&spider_obj, spider_bitmap);
-    vehicle_obj[num++] = process_object(&psycho_obj, psycho_bitmap);
-    vehicle_obj[num++] = process_object(&tornado_obj, tornado_bitmap);
+    fprintf(stderr,"***   vehicles\n");    num = 0;
+    vehicle_obj[num++] = process_object(&lightc_obj,   lightc_bitmap);
+    vehicle_obj[num++] = process_object(&trike_obj,    trike_bitmap);
+    vehicle_obj[num++] = process_object(&hexo_obj,     hexo_bitmap);
+    vehicle_obj[num++] = process_object(&spider_obj,   spider_bitmap);
+    vehicle_obj[num++] = process_object(&psycho_obj,   psycho_bitmap);
+    vehicle_obj[num++] = process_object(&tornado_obj,  tornado_bitmap);
     vehicle_obj[num++] = process_object(&marauder_obj, marauder_bitmap);
-    vehicle_obj[num++] = process_object(&tiger_obj, tiger_bitmap);
-    vehicle_obj[num++] = process_object(&rhino_obj, rhino_bitmap);
-    vehicle_obj[num++] = process_object(&medusa_obj, medusa_bitmap);
-    vehicle_obj[num++] = process_object(&delta_obj, delta_bitmap);
-    vehicle_obj[num++] = process_object(&disk_obj, disk_bitmap);
-    vehicle_obj[num++] = process_object(&malice_obj, malice_bitmap);
-    vehicle_obj[num++] = process_object(&panzy_obj, panzy_bitmap);
+    vehicle_obj[num++] = process_object(&tiger_obj,    tiger_bitmap);
+    vehicle_obj[num++] = process_object(&rhino_obj,    rhino_bitmap);
+    vehicle_obj[num++] = process_object(&medusa_obj,   medusa_bitmap);
+    vehicle_obj[num++] = process_object(&delta_obj,    delta_bitmap);
+    vehicle_obj[num++] = process_object(&disk_obj,     disk_bitmap);
+    vehicle_obj[num++] = process_object(&malice_obj,   malice_bitmap);
+    vehicle_obj[num++] = process_object(&panzy_obj,    panzy_bitmap);
     num_vehicle_objs = num;
 
-     // Make all of the explosion objects
+     // Make all of the explosion objectsy
+    fprintf(stderr,"***   explosions\n");
     num = 0;
-    exp_obj[num++] = process_object(&shock_obj, shock_bitmap);
-    exp_obj[num++] = process_object(&gleam_obj, gleam_bitmap);
-    exp_obj[num++] = process_object(&tink_obj, tink_bitmap);
-    exp_obj[num++] = process_object(&soft_obj, soft_bitmap);
-    exp_obj[num++] = process_object(&circle_obj, circle_bitmap);
-    exp_obj[num++] = process_object(&fiery_obj, fiery_bitmap);
-    exp_obj[num++] = process_object(&double_obj, double_bitmap);
+    exp_obj[num++] = process_object(&shock_obj,   shock_bitmap);
+    exp_obj[num++] = process_object(&gleam_obj,    gleam_bitmap);
+    exp_obj[num++] = process_object(&tink_obj,    tink_bitmap);
+    exp_obj[num++] = process_object(&soft_obj,    soft_bitmap);
+    exp_obj[num++] = process_object(&circle_obj,  circle_bitmap);
+    exp_obj[num++] = process_object(&fiery_obj,   fiery_bitmap);
+    exp_obj[num++] = process_object(&double_obj,  double_bitmap);
     exp_obj[num++] = process_object(&exhaust_obj, exhaust_bitmap);
+    exp_obj[num++] = process_object(&electric_obj,   electric_bitmap);
+    exp_obj[num++] = process_object(&nuke_obj,       nuke_bitmap);
     num_exp_objs = num;
+    if(num_exp_objs != MAX_EXP_OBJS)
+        fprintf(stderr,
+                "Yikes!!!!  MAX_EXP_OBJS mismatched! num:%d NUM:%d\n",
+                num_exp_objs, MAX_EXP_OBJS);
 
-    /* Make the bullet object */
+    // Make the bullet object
+    fprintf(stderr,"***   bullets\n");
     num = 0;
-    bullet_obj[num++] = process_object(&lmg_obj, lmg_bitmap);
-    bullet_obj[num++] = process_object(&mg_obj, mg_bitmap);
-    bullet_obj[num++] = process_object(&hmg_obj, hmg_bitmap);
-    bullet_obj[num++] = process_object(&lac_obj, lac_bitmap);
-    bullet_obj[num++] = process_object(&ac_obj, ac_bitmap);
-    bullet_obj[num++] = process_object(&hac_obj, hac_bitmap);
-    bullet_obj[num++] = process_object(&lrl_obj, lrl_bitmap);
-    bullet_obj[num++] = process_object(&rl_obj, rl_bitmap);
-    bullet_obj[num++] = process_object(&hrl_obj, hrl_bitmap);
-    bullet_obj[num++] = process_object(&as_obj, as_bitmap);
-    bullet_obj[num++] = process_object(&ft_obj, ft_bitmap);
+    bullet_obj[num++] = process_object(&lmg_obj,  lmg_bitmap);
+    bullet_obj[num++] = process_object(&mg_obj,   mg_bitmap);
+    bullet_obj[num++] = process_object(&hmg_obj,  hmg_bitmap);
+    bullet_obj[num++] = process_object(&lac_obj,  lac_bitmap);
+    bullet_obj[num++] = process_object(&ac_obj,   ac_bitmap);
+    bullet_obj[num++] = process_object(&hac_obj,  hac_bitmap);
+    bullet_obj[num++] = process_object(&lrl_obj,  lrl_bitmap);
+    bullet_obj[num++] = process_object(&rl_obj,   rl_bitmap);
+    bullet_obj[num++] = process_object(&hrl_obj,  hrl_bitmap);
+    bullet_obj[num++] = process_object(&as_obj,   as_bitmap);
+    bullet_obj[num++] = process_object(&ft_obj,   ft_bitmap);
     bullet_obj[num++] = process_object(&seek_obj, seek_bitmap);
-    bullet_obj[num++] = process_object(&pr_obj, pr_bitmap);
-    bullet_obj[num++] = process_object(&um_obj, um_bitmap);
+    bullet_obj[num++] = process_object(&pr_obj,   pr_bitmap);
+    bullet_obj[num++] = process_object(&um_obj,   um_bitmap);
     num_bullet_objs = num;
+    if(num_bullet_objs != NUM_BULLET_OBJS)
+        fprintf(stderr,
+                "Yikes!!!!  NUM_BULLET_OBJS mismatched! num:%d NUM:%d\n",
+                num_bullet_objs, NUM_BULLET_OBJS);
 
+    // Make the landmark objects
+    num = 0;
+    landmark_obj[num++] = process_object(&anim_landmarks_obj,   anim_landmarks_bitmap);
+    landmark_obj[num++] = process_object(&map_landmarks_obj,    map_landmarks_bitmap);
+    landmark_obj[num++] = process_object(&design_landmarks_obj, design_landmarks_bitmap);
+    num_landmark_objs = num;
 
+    // Make the random objects
+    num = 0;
+    random_obj[num++] = process_object(&xtank_obj, xtank_bitmap); // XTANK_OBJ
+    random_obj[num++] = process_object(&team_obj,  team_bitmap);  // TEAM_OBJ
+    random_obj[num++] = process_object(&terp_obj,  terp_bitmap);  // TERP_OBJ
+    num_random_objs = 3;
+
+    return object_error;
 }
 
 //////////////////////////////////////////////////////////////////////////////j
@@ -357,14 +375,13 @@ draw_objs_gtk4(cairo_t *cr,
                int y,
                int height) {
 
-
     int i;
 
     for (i = first; i < last; i++)
         if (view < obj[i]->num_pics)
             draw_picture_string_gtk4,(obj[i], view, (text ? obj[i]->type : ""),
                                       x + PIC_X,
-                                y + PIC_Y + height * (i - first), 0);
+                                      y + PIC_Y + height * (i - first), 0);
 
     // cairo_set_source_rgb (cr, 1.0, 1.0, 1.0); // white
     // cairo_move_to (cr, x, y);
@@ -393,14 +410,17 @@ display_pics_gtk4(cairo_t *cr) {
 }
 
 //////////////////////////////////////////////////////////////////////////////
-        int cticks = 0;
 
-    static void
-        draw_function (GtkDrawingArea *area, cairo_t *cr, int width, int height, gpointer user_data) {
-        int tik;
-        int x;
-        int y;
-        int vskip;
+
+//////////////////////////////////////////////////////////////////////////////
+int cticks = 0;
+
+static void
+draw_function (GtkDrawingArea *area, cairo_t *cr, int width, int height, gpointer user_data) {
+    int tik;
+    int x;
+    int y;
+    int vskip;
 
     cairo_set_source_rgb (cr, 0.0, 0.0, 0.0); // black
     cairo_paint (cr);
@@ -408,19 +428,14 @@ display_pics_gtk4(cairo_t *cr) {
     display_pics_gtk4(cr);
 
     cairo_set_source_rgb (cr, 1.0, 1.0, 1.0); // white
-
-    // cairo_select_font_face(cr, "Purisa",
-    //                        CAIRO_FONT_SLANT_NORMAL,
-    // CAIRO_FONT_WEIGHT_BOLD);
     cairo_select_font_face(cr, "cairo:sans-serif",
                            CAIRO_FONT_SLANT_NORMAL,
                            CAIRO_FONT_WEIGHT_NORMAL);
-
     cairo_set_font_size(cr, 13);
-    cairo_move_to(cr, 20, 30);
-    cairo_show_text(cr, "Most relationships seem so transitory");
-    cairo_stroke(cr);
 
+
+    // cairo_move_to(cr, 20, 30);
+    // cairo_show_text(cr, "Most relationships seem so transitory");
 
     tik = (cticks / 5)%4;
     x=100; y=100;
