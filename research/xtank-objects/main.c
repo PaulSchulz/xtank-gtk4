@@ -175,13 +175,110 @@ Object *random_obj[MAX_RANDOM_OBJS];
 int object_error;
 
 //////////////////////////////////////////////////////////////////////////////
+void rotate_pic_90_gtk4 (Picture *picture, Picture *rot_picture) {
+    GdkPixbuf *pix_buffer;
+    GdkPixbuf *rot_pix_buffer;
+    int width;
+    int height;
+    int offset_x;
+    int offset_y;
+
+    width =      picture->width;
+    height =     picture->height;
+    offset_x =   picture->offset_x;
+    offset_y =   picture->offset_y;
+    pix_buffer = picture->pixbuf;
+
+    rot_picture->width  =   height;
+    rot_picture->height =   width;
+    rot_picture->offset_x = height - offset_y - 1;
+    rot_picture->offset_y = offset_x;
+
+    // TODO Memory leak if a pixbuf has already been created (check this).
+    rot_picture->pixbuf = gdk_pixbuf_rotate_simple (pix_buffer,270);
+
+}
+
+void rotate_pic_180_gtk4 (Picture *pic, Picture *rot_pic) {
 
 
 
+}
 
+void rotate_pic_270_gtk4 (Picture *pic, Picture *rot_pic) {
+
+}
+
+void rotate_object_gtk4 (Object *obj) {
+
+    Picture *picture, *rot_picture;
+    int source, dest;
+
+    // Process first 4 images by rotating tham 90 deg.
+    for(source = 0; source < 4; source++){
+        dest = source + 4;
+        picture = &obj->pic[source];
+        rot_picture = &obj->pic[dest];
+        rotate_pic_90_gtk4(picture, rot_picture);
+    }
+
+    for(source = 4; source < 8; source++){
+        dest = source + 4;
+        picture = &obj->pic[source];
+        rot_picture = &obj->pic[dest];
+        rotate_pic_90_gtk4(picture, rot_picture);
+    }
+
+    for(source = 8; source < 12; source++){
+        dest = source + 4;
+        picture = &obj->pic[source];
+        rot_picture = &obj->pic[dest];
+        rotate_pic_90_gtk4(picture, rot_picture);
+    }
+
+}
+
+void process_picture (Picture *picture, unsigned char *data) {
+    GdkPixbuf *pix_buffer;
+    int w = picture->width;
+    int h = picture->height;
+    int byte_width = w/8;
+    if (w%8 != 0) byte_width++; // Adjust width to match data
+
+    // Create new pixbuf
+    pix_buffer = gdk_pixbuf_new (GDK_COLORSPACE_RGB, TRUE, 8, w, h);
+
+    for (int j=0; j<h; j++){
+        for(int i=0; i<w; i++){
+            int byte = byte_width*j + i/8;
+            int bit  = i%8;
+
+            int offset
+                = gdk_pixbuf_get_rowstride(pix_buffer)*j
+                + gdk_pixbuf_get_n_channels(pix_buffer)*i;
+            guchar * pixel = &gdk_pixbuf_get_pixels(pix_buffer)[ offset ]; // get pixel pointer
+
+            // Black and White
+            if (data[byte] & 1<<bit) {
+                pixel[0] = 0xFF;
+                pixel[1] = 0xFF;
+                pixel[2] = 0xFF;
+                pixel[3] = 0xFF;
+            } else {
+                pixel[0] = 0x00;
+                pixel[1] = 0x00;
+                pixel[2] = 0x00;
+                pixel[3] = 0x00;
+            }
+        }
+    }
+
+    picture->pixbuf = pix_buffer;
+}
+
+// Add image pixbuf to object
 Object *
 process_object(Object *object, unsigned char **pixdata) {
-    int pic = 0;
 
     GdkPixbuf *pix_buffer;
 
@@ -189,43 +286,34 @@ process_object(Object *object, unsigned char **pixdata) {
         Picture *picture = &object->pic[pic];
         unsigned char *data = pixdata[pic];
 
-        int w = picture->width;
-        int h = picture->height;
-        int byte_width = w/8;
-        if (w%8 != 0) byte_width++; // Adjust width to match data
+        process_picture(picture,data);
 
-        // Create new pixbuf
-        pix_buffer = gdk_pixbuf_new (GDK_COLORSPACE_RGB, TRUE, 8, w, h);
-
-        for (int j=0; j<h; j++){
-            for(int i=0; i<w; i++){
-                int byte = byte_width*j + i/8;
-                int bit  = i%8;
-
-                int offset
-                    = gdk_pixbuf_get_rowstride(pix_buffer)*j
-                    + gdk_pixbuf_get_n_channels(pix_buffer)*i;
-                guchar * pixel = &gdk_pixbuf_get_pixels(pix_buffer)[ offset ]; // get pixel pointer
-
-                // Black and White
-                if (data[byte] & 1<<bit) {
-                    pixel[0] = 0xFF;
-                    pixel[1] = 0xFF;
-                    pixel[2] = 0xFF;
-                    pixel[3] = 0xFF;
-                } else {
-                    pixel[0] = 0x00;
-                    pixel[1] = 0x00;
-                    pixel[2] = 0x00;
-                    pixel[3] = 0x00;
-                }
-             }
-        }
-        picture->pixbuf = pix_buffer;
     } // loop: pic
 
     return object;
 }
+
+// Only process first four images of vehicle from data and then generate the
+// rest by rotations.
+// TODO Expect the number of pics to be 16.
+Object *
+process_vehicle(Object *object, unsigned char **pixdata) {
+
+    GdkPixbuf *pix_buffer;
+
+    for (int pic=0; pic<4; pic++) {
+        Picture *picture = &object->pic[pic];
+        unsigned char *data = pixdata[pic];
+
+        process_picture(picture,data);
+
+    } // loop: pic
+
+    rotate_object_gtk4(object);
+
+    return object;
+}
+
 
 // Similar to 'make_objects' in original code.
 int
@@ -239,23 +327,23 @@ process_objects (void) {
 
     // Make all of the vehicle objects
     fprintf(stderr,"***   vehicles\n");    num = 0;
-    vehicle_obj[num++] = process_object(&lightc_obj,   lightc_bitmap);
-    vehicle_obj[num++] = process_object(&trike_obj,    trike_bitmap);
-    vehicle_obj[num++] = process_object(&hexo_obj,     hexo_bitmap);
-    vehicle_obj[num++] = process_object(&spider_obj,   spider_bitmap);
-    vehicle_obj[num++] = process_object(&psycho_obj,   psycho_bitmap);
-    vehicle_obj[num++] = process_object(&tornado_obj,  tornado_bitmap);
-    vehicle_obj[num++] = process_object(&marauder_obj, marauder_bitmap);
-    vehicle_obj[num++] = process_object(&tiger_obj,    tiger_bitmap);
-    vehicle_obj[num++] = process_object(&rhino_obj,    rhino_bitmap);
-    vehicle_obj[num++] = process_object(&medusa_obj,   medusa_bitmap);
-    vehicle_obj[num++] = process_object(&delta_obj,    delta_bitmap);
-    vehicle_obj[num++] = process_object(&disk_obj,     disk_bitmap);
-    vehicle_obj[num++] = process_object(&malice_obj,   malice_bitmap);
-    vehicle_obj[num++] = process_object(&panzy_obj,    panzy_bitmap);
+    vehicle_obj[num++] = process_vehicle(&lightc_obj,   lightc_bitmap);
+    vehicle_obj[num++] = process_vehicle(&trike_obj,    trike_bitmap);
+    vehicle_obj[num++] = process_vehicle(&hexo_obj,     hexo_bitmap);
+    vehicle_obj[num++] = process_vehicle(&spider_obj,   spider_bitmap);
+    vehicle_obj[num++] = process_vehicle(&psycho_obj,   psycho_bitmap);
+    vehicle_obj[num++] = process_vehicle(&tornado_obj,  tornado_bitmap);
+    vehicle_obj[num++] = process_vehicle(&marauder_obj, marauder_bitmap);
+    vehicle_obj[num++] = process_vehicle(&tiger_obj,    tiger_bitmap);
+    vehicle_obj[num++] = process_vehicle(&rhino_obj,    rhino_bitmap);
+    vehicle_obj[num++] = process_vehicle(&medusa_obj,   medusa_bitmap);
+    vehicle_obj[num++] = process_vehicle(&delta_obj,    delta_bitmap);
+    vehicle_obj[num++] = process_vehicle(&disk_obj,     disk_bitmap);
+    vehicle_obj[num++] = process_vehicle(&malice_obj,   malice_bitmap);
+    vehicle_obj[num++] = process_vehicle(&panzy_obj,    panzy_bitmap);
     num_vehicle_objs = num;
 
-     // Make all of the explosion objectsy
+    // Make all of the explosion objectsy
     fprintf(stderr,"***   explosions\n");
     num = 0;
     exp_obj[num++] = process_object(&shock_obj,   shock_bitmap);
@@ -328,7 +416,8 @@ static void
 draw_object (cairo_t *cr, int x, int y, Object *object, int pic) {
 
     // TODO Add bounds checking for pic.
-    Picture *picture = &object->pic[pic];
+    int n = pic%(object->num_pics);
+    Picture *picture = &object->pic[n];
     draw_picture_gtk4(cr, x, y, picture);
 }
 
@@ -437,38 +526,37 @@ draw_function (GtkDrawingArea *area, cairo_t *cr, int width, int height, gpointe
     // cairo_move_to(cr, 20, 30);
     // cairo_show_text(cr, "Most relationships seem so transitory");
 
-    tik = (cticks / 5)%4;
-    x=100; y=100;
-    draw_object(cr, x, y, &medusa_obj, tik);
-
-    tik = (cticks / 5)%9;
-    x = 50; y = 50;
-    draw_object(cr, x, y, &circle_obj, tik);
-
-    tik=0;
-
-    x=200; y=40;
+    tik = cticks / 10;
+    x=40; y=40;
     vskip=60;
     for (int i=0; i<num_vehicle_objs; i++){
-        draw_object(cr, x, y, vehicle_obj[i], 0);
+        draw_object(cr, x, y, vehicle_obj[i], tik);
+        y+=vskip;
+    }
+
+    x=200; y=40;
+    vskip=20;
+    for (int i=0; i<num_bullet_objs; i++){
+        draw_object(cr, x, y, bullet_obj[i], tik);
         y+=vskip;
     }
 
     x=400; y=40;
-    vskip=20;
-    for (int i=0; i<num_bullet_objs; i++){
-        draw_object(cr, x, y, bullet_obj[i], 0);
+    vskip=80;
+    for (int i=0; i<num_exp_objs; i++){
+        draw_object(cr, x, y, exp_obj[i], tik);
         y+=vskip;
     }
 
     x=600; y=40;
-    vskip=20;
-    for (int i=0; i<num_exp_objs; i++){
-        draw_object(cr, x, y, exp_obj[i], 0);
-        y+=vskip;
+    vskip=40;
+    for (int i=0; i<num_landmark_objs; i++){
+        for(int k=0; k<landmark_obj[i]->num_pics; k++) {
+            draw_object(cr, x, y, landmark_obj[i], k);
+            y+=vskip;
+        }
+        x+=100; y=40;
     }
-
-
 
     cticks++;
 }
@@ -563,22 +651,22 @@ main (int argc, char **argv) {
 	int iNumOpts = 0;
 	int ret, i;
 
-	bset = &actual_bset;
-	eset = &actual_eset;
+    bset = &actual_bset;
+    eset = &actual_eset;
 
     // TODO: Fixup reading environment variables
     /*
-    {
-		extern char *network_error_str[];
+      {
+      extern char *network_error_str[];
 
-		// Get environment variables
-		debug("Getting environment variables");
-		get_environment();
-		executable_name = malloc((unsigned) strlen(argv[0]) + 1);
-		(void) strcpy(executable_name, argv[0]);
+      // Get environment variables
+      debug("Getting environment variables");
+      get_environment();
+      executable_name = malloc((unsigned) strlen(argv[0]) + 1);
+          (void) strcpy(executable_name, argv[0]);
 
-		// If there are multiple display names, check to make sure all displays
-        // are on same subnet, to avoid producing gateway traffic.
+          // If there are multiple display names, check to make sure all displays
+// are on same subnet, to avoid producing gateway traffic.
 		if (argc > 1) {
 			debug("Checking internet addresses");
 			// ret = check_internet(argc - 1, argv + 1);
