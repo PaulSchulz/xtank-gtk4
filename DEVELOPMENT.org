@@ -190,7 +190,7 @@ Functions
 - draw_picture() ::
 - draw_text_left() ::
 
-*Note:* Documentation on *gdk-pixbuf* can be found here -  [[https://www.manpagez.com/html/gdk-pixbuf/gdk-pixbuf-2.36.0/gdk-pixbuf-Scaling.php#gdk-pixbuf-rotate-simple]]
+*Note:* Documentation on *gdk-pixbuf* can be found here -  [[https://www.manpagez.com/html/gdk-pixbuf/gdk-pixbuf-2.36.0/gdk-pixbuf-Scaling.php]]
 
 ** Graphics Objects (src/display/objects)
 
