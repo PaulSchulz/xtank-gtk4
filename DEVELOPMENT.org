@@ -190,6 +190,8 @@ Functions
 - draw_picture() ::
 - draw_text_left() ::
 
+*Note:* Documentation on *gdk-pixbuf* can be found here -  [[https://www.manpagez.com/html/gdk-pixbuf/gdk-pixbuf-2.36.0/gdk-pixbuf-Scaling.php#gdk-pixbuf-rotate-simple]]
+
 ** Graphics Objects (src/display/objects)
 
 The data for graphical objects are stored in a split C data structure, eg. *(Object) medusa_obj* and *(unsigned char) medusa_bitmap[]*, which store meta data and bitmap data respectively.  
