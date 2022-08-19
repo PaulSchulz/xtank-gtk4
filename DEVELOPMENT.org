@@ -254,7 +254,8 @@ Types
 
     int w = picture->width;
     int h = picture->height;
-    int byte_width = w/8 + 1;
+    int byte_width = w/8;
+    if (w%8 != 0) byte_width++; // Adjust width to match data
 
     fprintf(stderr, " w: %d (%d)  h: %d\n", w, byte_width, h);
 
